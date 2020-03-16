@@ -7,6 +7,8 @@ My motivation for writing it was to learn about Qt programming.
 
 QMandelbrot is licensed under the GPL v3. See LICENSE for details.
 
+![Screenshot](screenshot.png "QMandelbrot")
+
 Building QMandelbrot
 -------------------
 Open the file mandelbrot.pro in Qt Designer or run qmake to generate a Makefile.
