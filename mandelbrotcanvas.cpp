@@ -22,7 +22,8 @@
 #include <QtWidgets>
 
 MandelbrotCanvas::MandelbrotCanvas(QWidget *parent) : QWidget(parent),
-    iterations_(500), jobId_(std::make_shared<int>(0)), rect_(-2.0, -1.5, 3.0, 3.0), mouseDown_(false)
+    iterations_(500), jobId_(std::make_shared<int>(0)), rect_(-2.0, -1.5, 3.0, 3.0),
+    mouseDown_(false), redrawNeeded_(true)
 {
     MandelbrotWorker* worker = new MandelbrotWorker(jobId_);
     worker->moveToThread(&workerThread_);
@@ -47,12 +48,17 @@ void MandelbrotCanvas::recomputeScale()
     scale_ = std::min(xscale, yscale);
     rect_.setWidth(width()/scale_);
     rect_.setHeight(height()/scale_);
+    redrawNeeded_ = true;
     emit setValues(scale_, rect_);
 }
 
 void MandelbrotCanvas::setIterations(int n)
 {
-    iterations_ = n;
+    if (n != iterations_)
+    {
+        iterations_ = n;
+        redrawNeeded_ = true;
+    }
 }
 
 int MandelbrotCanvas::getIterations() const
@@ -101,8 +107,12 @@ void MandelbrotCanvas::createPixmap(int width, int height)
 
 void MandelbrotCanvas::redraw()
 {
-    ++*jobId_;
-    startDrawing(*jobId_, width(), height(), iterations_, scale_, rect_);
+    if (redrawNeeded_)
+    {
+        ++*jobId_;
+        startDrawing(*jobId_, width(), height(), iterations_, scale_, rect_);
+        redrawNeeded_ = false;
+    }
 }
 
 void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event)

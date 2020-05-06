@@ -22,10 +22,29 @@
 #include "version.h"
 #include <QtWidgets>
 
+namespace
+{
+    void setNumber(QLineEdit* edit, double number, char format = 'g', int precision = 6)
+    {
+        QString str;
+        str.setNum(number, format, precision);
+        edit->setText(str);
+    }
+
+    void setNumber(QLineEdit* edit, int number)
+    {
+        QString str;
+        str.setNum(number);
+        edit->setText(str);
+    }
+}
+
 MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     : QWidget(parent)
 {
     iterationsField_ = new QLineEdit();
+    QValidator* validator = new QIntValidator(1, 1000000, this);
+    iterationsField_->setValidator(validator);
 
     scaleField_ = new QLineEdit();
     scaleField_->setReadOnly(true);
@@ -92,6 +111,7 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     connect(canvas_, &MandelbrotCanvas::setValues, this, &MandelbrotWidget::setValues);
     connect(canvas_, &MandelbrotCanvas::setTime, this, &MandelbrotWidget::setTime);
     connect(iterationsField_, SIGNAL(textEdited(const QString&)), this, SLOT(iterationsEdited(const QString&)));
+    connect(iterationsField_, SIGNAL(editingFinished()), this, SLOT(iterationsChanged()));
 
     setLayout(mainLayout);
     setWindowTitle(tr("QMandelbrot"));
@@ -124,7 +144,7 @@ void MandelbrotWidget::writeSettings()
     settings.setValue("geometry", saveGeometry());
 }
 
-void MandelbrotWidget::closeEvent(QCloseEvent* event)
+void MandelbrotWidget::closeEvent(QCloseEvent* /*event*/)
 {
     writeSettings();
 }
@@ -155,35 +175,30 @@ void MandelbrotWidget::save()
 
 void MandelbrotWidget::setTime(int mseconds)
 {
-    QString str;
-    str.setNum(mseconds/1000.0, 'f', 3);
-    timeField_->setText(str);
+    setNumber(timeField_, mseconds/1000.0, 'f', 3);
 }
 
 void MandelbrotWidget::setIterations(int n)
 {
-    QString str;
-    str.setNum(n);
-    iterationsField_->setText(str);
+    setNumber(iterationsField_, n);
 }
 
 void MandelbrotWidget::iterationsEdited(const QString& text)
 {
-    // TODO: display error message if text is not a positive integer
-    canvas_->setIterations(text.toInt());
+    if (iterationsField_->hasAcceptableInput())
+        canvas_->setIterations(text.toInt());
+}
+
+void MandelbrotWidget::iterationsChanged()
+{
+    canvas_->redraw();
 }
 
 void MandelbrotWidget::setValues(double scale, const QRectF& rect)
 {
-    QString str;
-    str.setNum(scale);
-    scaleField_->setText(str);
-    str.setNum(rect.left());
-    minXField_->setText(str);
-    str.setNum(rect.top());
-    minYField_->setText(str);
-    str.setNum(rect.right());
-    maxXField_->setText(str);
-    str.setNum(rect.bottom());
-    maxYField_->setText(str);
+    setNumber(scaleField_, scale);
+    setNumber(minXField_, rect.left());
+    setNumber(minYField_, rect.top());
+    setNumber(maxXField_, rect.right());
+    setNumber(maxYField_, rect.bottom());
 }

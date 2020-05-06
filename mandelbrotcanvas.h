@@ -69,6 +69,7 @@ private:
     QPoint startPoint_;
     QPoint endPoint_;
     QThread workerThread_;
+    bool redrawNeeded_;
 };
 
 #endif // MANDELBROTCANVAS_H

@@ -44,6 +44,7 @@ public slots:
     void setValues(double, const QRectF&);
     void setTime(int);
     void iterationsEdited(const QString&);
+    void iterationsChanged();
 
 protected:
     void closeEvent(QCloseEvent*) override;
