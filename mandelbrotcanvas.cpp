@@ -23,8 +23,7 @@
 
 MandelbrotCanvas::MandelbrotCanvas(QWidget *parent) : QWidget(parent),
     iterations_(500), jobId_(std::make_shared<int>(0)), rect_(-2.0, -1.5, 3.0, 3.0),
-    mouseDown_(false), redrawNeeded_(true)
-{
+    mouseDown_(false), redrawNeeded_(true) {
     MandelbrotWorker* worker = new MandelbrotWorker(jobId_);
     worker->moveToThread(&workerThread_);
     connect(&workerThread_, &QThread::finished, worker, &QObject::deleteLater);
@@ -34,15 +33,13 @@ MandelbrotCanvas::MandelbrotCanvas(QWidget *parent) : QWidget(parent),
     workerThread_.start();
 }
 
-MandelbrotCanvas::~MandelbrotCanvas()
-{
+MandelbrotCanvas::~MandelbrotCanvas() {
     ++*jobId_; // tell worker to stop
     workerThread_.quit();
     workerThread_.wait();
 }
 
-void MandelbrotCanvas::recomputeScale()
-{
+void MandelbrotCanvas::recomputeScale() {
     double xscale = width()/(rect_.width());
     double yscale = height()/(rect_.height());
     scale_ = std::min(xscale, yscale);
@@ -52,38 +49,32 @@ void MandelbrotCanvas::recomputeScale()
     emit setValues(scale_, rect_);
 }
 
-void MandelbrotCanvas::setIterations(int n)
-{
-    if (n != iterations_)
-    {
+void MandelbrotCanvas::setIterations(int n) {
+    if (n != iterations_) {
         iterations_ = n;
         redrawNeeded_ = true;
     }
 }
 
-int MandelbrotCanvas::getIterations() const
-{
+int MandelbrotCanvas::getIterations() const {
     return iterations_;
 }
 
-void MandelbrotCanvas::paintEvent(QPaintEvent* event)
-{
+void MandelbrotCanvas::paintEvent(QPaintEvent* event) {
     if (image_.get() == 0)
         createPixmap(width(), height());
     QPainter painter(this);
     painter.drawImage(event->rect(), *image_.get(), event->rect());
 }
 
-void MandelbrotCanvas::resizeEvent(QResizeEvent* event)
-{
+void MandelbrotCanvas::resizeEvent(QResizeEvent* event) {
     recomputeScale();
     const QSize& size = event->size();
     createPixmap(size.width(), size.height());
     redraw();
 }
 
-void MandelbrotCanvas::drawLine(int id, int x, const QVector<unsigned int>& pixels)
-{
+void MandelbrotCanvas::drawLine(int id, int x, const QVector<unsigned int>& pixels) {
     if (id != *jobId_)
        return;
     int h = image_->height();
@@ -92,33 +83,27 @@ void MandelbrotCanvas::drawLine(int id, int x, const QVector<unsigned int>& pixe
     update(x, 0, 1, h);
 }
 
-void MandelbrotCanvas::jobDone(int id, int msec)
-{
+void MandelbrotCanvas::jobDone(int id, int msec) {
     if (id == *jobId_)
         emit setTime(msec);
 }
 
-void MandelbrotCanvas::createPixmap(int width, int height)
-{
+void MandelbrotCanvas::createPixmap(int width, int height) {
     image_.reset(new QImage(width, height, QImage::Format_RGB32));
     QPainter painter(image_.get());
     painter.fillRect(0, 0, image_->width(), image_->height(), QColor(0, 0, 0));
 }
 
-void MandelbrotCanvas::redraw()
-{
-    if (redrawNeeded_)
-    {
+void MandelbrotCanvas::redraw() {
+    if (redrawNeeded_) {
         ++*jobId_;
         startDrawing(*jobId_, width(), height(), iterations_, scale_, rect_);
         redrawNeeded_ = false;
     }
 }
 
-void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event)
-{
-    if (mouseDown_)
-    {
+void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event) {
+    if (mouseDown_) {
         if (endPoint_ != startPoint_)
             eraseRect();
         endPoint_ = event->pos();
@@ -126,10 +111,8 @@ void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MandelbrotCanvas::mousePressEvent(QMouseEvent *event)
-{
-    if (!mouseDown_ && event->button() == Qt::LeftButton)
-    {
+void MandelbrotCanvas::mousePressEvent(QMouseEvent *event) {
+    if (!mouseDown_ && event->button() == Qt::LeftButton) {
         mouseDown_ = true;
         startPoint_ = event->pos();
         endPoint_ = startPoint_;
@@ -137,16 +120,13 @@ void MandelbrotCanvas::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (mouseDown_ && event->button() == Qt::LeftButton)
-    {
+void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent *event) {
+    if (mouseDown_ && event->button() == Qt::LeftButton) {
         mouseDown_ = false;
         if (endPoint_ != startPoint_)
             eraseRect();
         endPoint_ = event->pos();
-        if (endPoint_ != startPoint_)
-        {
+        if (endPoint_ != startPoint_) {
             stack_.push(rect_);
             int x1 = std::min(startPoint_.x(), endPoint_.x());
             int y1 = std::min(startPoint_.y(), endPoint_.y());
@@ -162,8 +142,7 @@ void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-QRect MandelbrotCanvas::mouseRect() const
-{
+QRect MandelbrotCanvas::mouseRect() const {
     int x1 = std::min(startPoint_.x(), endPoint_.x());
     int y1 = std::min(startPoint_.y(), endPoint_.y());
     int x2 = std::max(startPoint_.x(), endPoint_.x());
@@ -172,8 +151,7 @@ QRect MandelbrotCanvas::mouseRect() const
     return rect;
 }
 
-void MandelbrotCanvas::eraseRect()
-{
+void MandelbrotCanvas::eraseRect() {
     if (tempPixmap_.get() == nullptr)
         return;
     QRect target(mouseRect());
@@ -184,8 +162,7 @@ void MandelbrotCanvas::eraseRect()
     update(target);
 }
 
-void MandelbrotCanvas::drawRect()
-{
+void MandelbrotCanvas::drawRect() {
     QRect rect(mouseRect());
     QRect outside(rect.adjusted(-1, -1, 1, 1));
     backup(outside);
@@ -196,8 +173,7 @@ void MandelbrotCanvas::drawRect()
     update(outside);
 }
 
-void MandelbrotCanvas::backup(const QRect& rect)
-{
+void MandelbrotCanvas::backup(const QRect& rect) {
     if (tempPixmap_.get() == nullptr
             || tempPixmap_->width() < rect.width()
             || tempPixmap_->height() < rect.height())
@@ -207,8 +183,7 @@ void MandelbrotCanvas::backup(const QRect& rect)
     painter.drawImage(target, *image_.get(), rect);
 }
 
-void MandelbrotCanvas::revert()
-{
+void MandelbrotCanvas::revert() {
     if (stack_.empty())
         return;
     rect_ = stack_.top();
@@ -217,7 +192,6 @@ void MandelbrotCanvas::revert()
     redraw();
 }
 
-bool MandelbrotCanvas::save(const QString& fileName)
-{
+bool MandelbrotCanvas::save(const QString& fileName) {
     return image_->save(fileName);
 }

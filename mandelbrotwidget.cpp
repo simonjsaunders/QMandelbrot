@@ -22,17 +22,14 @@
 #include "version.h"
 #include <QtWidgets>
 
-namespace
-{
-    void setNumber(QLineEdit* edit, double number, char format = 'g', int precision = 6)
-    {
+namespace {
+    void setNumber(QLineEdit* edit, double number, char format = 'g', int precision = 6) {
         QString str;
         str.setNum(number, format, precision);
         edit->setText(str);
     }
 
-    void setNumber(QLineEdit* edit, int number)
-    {
+    void setNumber(QLineEdit* edit, int number) {
         QString str;
         str.setNum(number);
         edit->setText(str);
@@ -40,8 +37,7 @@ namespace
 }
 
 MandelbrotWidget::MandelbrotWidget(QWidget *parent)
-    : QWidget(parent)
-{
+    : QWidget(parent) {
     iterationsField_ = new QLineEdit();
     QValidator* validator = new QIntValidator(1, 1000000, this);
     iterationsField_->setValidator(validator);
@@ -118,18 +114,14 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     readSettings();
 }
 
-MandelbrotWidget::~MandelbrotWidget()
-{
-}
+MandelbrotWidget::~MandelbrotWidget() {}
 
-QString MandelbrotWidget::aboutText()
-{
+QString MandelbrotWidget::aboutText() {
     return tr("<p>QMandelbrot Version %1<br>Copyright &copy; %2<br>Simon J. Saunders</p>")
             .arg(QStringLiteral(VERSION_NUMBER), QStringLiteral(COPYRIGHT_YEAR));
 }
 
-void MandelbrotWidget::readSettings()
-{
+void MandelbrotWidget::readSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (!geometry.isEmpty())
@@ -138,34 +130,28 @@ void MandelbrotWidget::readSettings()
         resize(1000, 800);
 }
 
-void MandelbrotWidget::writeSettings()
-{
+void MandelbrotWidget::writeSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
 }
 
-void MandelbrotWidget::closeEvent(QCloseEvent* /*event*/)
-{
+void MandelbrotWidget::closeEvent(QCloseEvent* /*event*/) {
     writeSettings();
 }
 
-void MandelbrotWidget::redraw()
-{
+void MandelbrotWidget::redraw() {
     canvas_->redraw();
 }
 
-void MandelbrotWidget::revert()
-{
+void MandelbrotWidget::revert() {
     canvas_->revert();
 }
 
-void MandelbrotWidget::quit()
-{
+void MandelbrotWidget::quit() {
     QCoreApplication::quit();
 }
 
-void MandelbrotWidget::save()
-{
+void MandelbrotWidget::save() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
     if (fileName.isEmpty())
         return;
@@ -173,29 +159,24 @@ void MandelbrotWidget::save()
         QMessageBox::critical(this, tr("Error"), tr("Save Image failed."));
 }
 
-void MandelbrotWidget::setTime(int mseconds)
-{
+void MandelbrotWidget::setTime(int mseconds) {
     setNumber(timeField_, mseconds/1000.0, 'f', 3);
 }
 
-void MandelbrotWidget::setIterations(int n)
-{
+void MandelbrotWidget::setIterations(int n) {
     setNumber(iterationsField_, n);
 }
 
-void MandelbrotWidget::iterationsEdited(const QString& text)
-{
+void MandelbrotWidget::iterationsEdited(const QString& text) {
     if (iterationsField_->hasAcceptableInput())
         canvas_->setIterations(text.toInt());
 }
 
-void MandelbrotWidget::iterationsChanged()
-{
+void MandelbrotWidget::iterationsChanged() {
     canvas_->redraw();
 }
 
-void MandelbrotWidget::setValues(double scale, const QRectF& rect)
-{
+void MandelbrotWidget::setValues(double scale, const QRectF& rect) {
     setNumber(scaleField_, scale);
     setNumber(minXField_, rect.left());
     setNumber(minYField_, rect.top());

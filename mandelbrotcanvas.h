@@ -25,8 +25,7 @@
 #include <memory>
 #include <stack>
 
-class MandelbrotCanvas : public QWidget
-{
+class MandelbrotCanvas : public QWidget {
     Q_OBJECT
 public:
     explicit MandelbrotCanvas(QWidget *parent = nullptr);

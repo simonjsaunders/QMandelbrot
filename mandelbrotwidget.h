@@ -28,8 +28,7 @@ QT_END_NAMESPACE
 
 class MandelbrotCanvas;
 
-class MandelbrotWidget : public QWidget
-{
+class MandelbrotWidget : public QWidget {
     Q_OBJECT
 
 public:

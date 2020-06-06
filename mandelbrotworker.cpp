@@ -22,34 +22,26 @@
 #include <QTime>
 #include <QRectF>
 
-MandelbrotWorker::MandelbrotWorker(const std::shared_ptr<int>& jobId) : currentJobId_(jobId)
-{
-}
+MandelbrotWorker::MandelbrotWorker(const std::shared_ptr<int>& jobId) : currentJobId_(jobId) {}
 
-MandelbrotWorker::~MandelbrotWorker()
-{
-}
+MandelbrotWorker::~MandelbrotWorker() {}
 
-void MandelbrotWorker::draw(int id, int width, int height, int iterations, double scale, const QRectF& rect)
-{
+void MandelbrotWorker::draw(int id, int width, int height, int iterations, double scale, const QRectF& rect) {
     QTime t;
     t.start();
     drawMandelbrotSet(id, width, height, iterations, scale, rect);
     emit done(id, t.elapsed());
 }
 
-void MandelbrotWorker::drawMandelbrotSet(int id, int width, int height, int iterations, double scale, const QRectF& qrect)
-{
+void MandelbrotWorker::drawMandelbrotSet(int id, int width, int height, int iterations, double scale, const QRectF& qrect) {
     double minX = qrect.x();
     double minY = qrect.y();
-    for (int x = 0; x < width; x++)
-    {
+    for (int x = 0; x < width; x++) {
         if (id != *currentJobId_)
             return;
         QVector<unsigned int> pixels(height);
         double re = x/scale + minX;
-        for (int y = 0; y < height; y++)
-        {
+        for (int y = 0; y < height; y++) {
             if (id != *currentJobId_)
                 return;
             double zx, zy, newzx, newzy, im, zx2, zy2;
@@ -59,12 +51,10 @@ void MandelbrotWorker::drawMandelbrotSet(int id, int width, int height, int iter
             zy = im;
             zx = re;
 
-            for (i = 0; i < iterations; i++)
-            {
+            for (i = 0; i < iterations; i++) {
                 zx2 = zx * zx;
                 zy2 = zy * zy;
-                if (zx2 + zy2 > 4)
-                {
+                if (zx2 + zy2 > 4) {
                     inSet = false;
                     break;
                 }

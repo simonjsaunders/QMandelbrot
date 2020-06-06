@@ -24,8 +24,7 @@
 #include <QVector>
 #include <memory>
 
-class MandelbrotWorker : public QObject
-{
+class MandelbrotWorker : public QObject {
     Q_OBJECT
 public:
     MandelbrotWorker(const std::shared_ptr<int>&);
