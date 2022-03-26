@@ -32,7 +32,7 @@ class MandelbrotWidget : public QWidget {
     Q_OBJECT
 
 public:
-    MandelbrotWidget(QWidget *parent = nullptr);
+    MandelbrotWidget(QWidget* parent = nullptr);
     ~MandelbrotWidget();
 
 public slots:

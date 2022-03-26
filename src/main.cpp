@@ -22,12 +22,12 @@
 
 #include <QApplication>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName("SJS");
     QCoreApplication::setApplicationName("QMandelbrot");
     QCoreApplication::setApplicationVersion(VERSION_NUMBER);
-    qRegisterMetaType<QVector<unsigned int> >("QVector<uint>");
+    qRegisterMetaType<QVector<unsigned int>>("QVector<uint>");
     MandelbrotWidget w;
     w.show();
     return a.exec();

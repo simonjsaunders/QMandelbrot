@@ -21,15 +21,17 @@
 #include "mandelbrotworker.h"
 #include <QtWidgets>
 
-MandelbrotCanvas::MandelbrotCanvas(QWidget *parent) : QWidget(parent),
-    iterations_(500), jobId_(std::make_shared<int>(0)), rect_(-2.0, -1.5, 3.0, 3.0),
-    mouseDown_(false), redrawNeeded_(true) {
+MandelbrotCanvas::MandelbrotCanvas(QWidget* parent)
+    : QWidget(parent), iterations_(500), jobId_(std::make_shared<int>(0)),
+      rect_(-2.0, -1.5, 3.0, 3.0), mouseDown_(false), redrawNeeded_(true) {
     MandelbrotWorker* worker = new MandelbrotWorker(jobId_);
     worker->moveToThread(&workerThread_);
     connect(&workerThread_, &QThread::finished, worker, &QObject::deleteLater);
-    connect(worker, &MandelbrotWorker::drawLine, this, &MandelbrotCanvas::drawLine);
+    connect(worker, &MandelbrotWorker::drawLine, this,
+            &MandelbrotCanvas::drawLine);
     connect(worker, &MandelbrotWorker::done, this, &MandelbrotCanvas::jobDone);
-    connect(this, &MandelbrotCanvas::startDrawing, worker, &MandelbrotWorker::draw);
+    connect(this, &MandelbrotCanvas::startDrawing, worker,
+            &MandelbrotWorker::draw);
     workerThread_.start();
 }
 
@@ -40,11 +42,11 @@ MandelbrotCanvas::~MandelbrotCanvas() {
 }
 
 void MandelbrotCanvas::recomputeScale() {
-    double xscale = width()/(rect_.width());
-    double yscale = height()/(rect_.height());
+    double xscale = width() / (rect_.width());
+    double yscale = height() / (rect_.height());
     scale_ = std::min(xscale, yscale);
-    rect_.setWidth(width()/scale_);
-    rect_.setHeight(height()/scale_);
+    rect_.setWidth(width() / scale_);
+    rect_.setHeight(height() / scale_);
     redrawNeeded_ = true;
     emit setValues(scale_, rect_);
 }
@@ -56,9 +58,7 @@ void MandelbrotCanvas::setIterations(int n) {
     }
 }
 
-int MandelbrotCanvas::getIterations() const {
-    return iterations_;
-}
+int MandelbrotCanvas::getIterations() const { return iterations_; }
 
 void MandelbrotCanvas::paintEvent(QPaintEvent* event) {
     if (image_.get() == 0)
@@ -74,9 +74,10 @@ void MandelbrotCanvas::resizeEvent(QResizeEvent* event) {
     redraw();
 }
 
-void MandelbrotCanvas::drawLine(int id, int x, const QVector<unsigned int>& pixels) {
+void MandelbrotCanvas::drawLine(int id, int x,
+                                const QVector<unsigned int>& pixels) {
     if (id != *jobId_)
-       return;
+        return;
     int h = image_->height();
     for (int y = 0; y < h; ++y)
         image_->setPixel(x, y, pixels[y]);
@@ -102,7 +103,7 @@ void MandelbrotCanvas::redraw() {
     }
 }
 
-void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event) {
+void MandelbrotCanvas::mouseMoveEvent(QMouseEvent* event) {
     if (mouseDown_) {
         if (endPoint_ != startPoint_)
             eraseRect();
@@ -111,7 +112,7 @@ void MandelbrotCanvas::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
-void MandelbrotCanvas::mousePressEvent(QMouseEvent *event) {
+void MandelbrotCanvas::mousePressEvent(QMouseEvent* event) {
     if (!mouseDown_ && event->button() == Qt::LeftButton) {
         mouseDown_ = true;
         startPoint_ = event->pos();
@@ -120,7 +121,7 @@ void MandelbrotCanvas::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent *event) {
+void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent* event) {
     if (mouseDown_ && event->button() == Qt::LeftButton) {
         mouseDown_ = false;
         if (endPoint_ != startPoint_)
@@ -132,10 +133,10 @@ void MandelbrotCanvas::mouseReleaseEvent(QMouseEvent *event) {
             int y1 = std::min(startPoint_.y(), endPoint_.y());
             int x2 = std::max(startPoint_.x(), endPoint_.x());
             int y2 = std::max(startPoint_.y(), endPoint_.y());
-            rect_.setRight(x2/scale_ + rect_.left());
-            rect_.setLeft(x1/scale_ + rect_.left());
-            rect_.setBottom((height() - y1)/scale_ + rect_.top());
-            rect_.setTop((height() - y2)/scale_ + rect_.top());
+            rect_.setRight(x2 / scale_ + rect_.left());
+            rect_.setLeft(x1 / scale_ + rect_.left());
+            rect_.setBottom((height() - y1) / scale_ + rect_.top());
+            rect_.setTop((height() - y2) / scale_ + rect_.top());
             recomputeScale();
             redraw();
         }
@@ -174,9 +175,8 @@ void MandelbrotCanvas::drawRect() {
 }
 
 void MandelbrotCanvas::backup(const QRect& rect) {
-    if (tempPixmap_.get() == nullptr
-            || tempPixmap_->width() < rect.width()
-            || tempPixmap_->height() < rect.height())
+    if (tempPixmap_.get() == nullptr || tempPixmap_->width() < rect.width() ||
+        tempPixmap_->height() < rect.height())
         tempPixmap_.reset(new QPixmap(rect.width() + 100, rect.height() + 100));
     QPainter painter(tempPixmap_.get());
     QRect target(0, 0, rect.width(), rect.height());

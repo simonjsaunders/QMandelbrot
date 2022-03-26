@@ -36,7 +36,8 @@ signals:
     void done(int, int);
 
 private:
-    void drawMandelbrotSet(int id, int width, int height, int iterations, double scale, const QRectF&);
+    void drawMandelbrotSet(int id, int width, int height, int iterations,
+                           double scale, const QRectF&);
     std::shared_ptr<int> currentJobId_;
 };
 

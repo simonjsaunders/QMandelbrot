@@ -23,21 +23,21 @@
 #include <QtWidgets>
 
 namespace {
-    void setNumber(QLineEdit* edit, double number, char format = 'g', int precision = 6) {
-        QString str;
-        str.setNum(number, format, precision);
-        edit->setText(str);
-    }
-
-    void setNumber(QLineEdit* edit, int number) {
-        QString str;
-        str.setNum(number);
-        edit->setText(str);
-    }
+void setNumber(QLineEdit* edit, double number, char format = 'g',
+               int precision = 6) {
+    QString str;
+    str.setNum(number, format, precision);
+    edit->setText(str);
 }
 
-MandelbrotWidget::MandelbrotWidget(QWidget *parent)
-    : QWidget(parent) {
+void setNumber(QLineEdit* edit, int number) {
+    QString str;
+    str.setNum(number);
+    edit->setText(str);
+}
+} // namespace
+
+MandelbrotWidget::MandelbrotWidget(QWidget* parent) : QWidget(parent) {
     iterationsField_ = new QLineEdit();
     QValidator* validator = new QIntValidator(1, 1000000, this);
     iterationsField_->setValidator(validator);
@@ -97,17 +97,21 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     QFrame* canvasFrame = new QFrame();
     canvas_ = new MandelbrotCanvas(canvasFrame);
     QHBoxLayout* frameLayout = new QHBoxLayout();
-    canvasFrame->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+    canvasFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     frameLayout->setContentsMargins(0, 0, 0, 0);
     frameLayout->addWidget(canvas_, 1);
     canvasFrame->setLayout(frameLayout);
     mainLayout->addWidget(canvasFrame, 1);
 
     setIterations(canvas_->getIterations());
-    connect(canvas_, &MandelbrotCanvas::setValues, this, &MandelbrotWidget::setValues);
-    connect(canvas_, &MandelbrotCanvas::setTime, this, &MandelbrotWidget::setTime);
-    connect(iterationsField_, SIGNAL(textEdited(const QString&)), this, SLOT(iterationsEdited(const QString&)));
-    connect(iterationsField_, SIGNAL(editingFinished()), this, SLOT(iterationsChanged()));
+    connect(canvas_, &MandelbrotCanvas::setValues, this,
+            &MandelbrotWidget::setValues);
+    connect(canvas_, &MandelbrotCanvas::setTime, this,
+            &MandelbrotWidget::setTime);
+    connect(iterationsField_, SIGNAL(textEdited(const QString&)), this,
+            SLOT(iterationsEdited(const QString&)));
+    connect(iterationsField_, SIGNAL(editingFinished()), this,
+            SLOT(iterationsChanged()));
 
     setLayout(mainLayout);
     setWindowTitle(tr("QMandelbrot"));
@@ -117,13 +121,16 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
 MandelbrotWidget::~MandelbrotWidget() {}
 
 QString MandelbrotWidget::aboutText() {
-    return tr("<p>QMandelbrot Version %1<br>Copyright &copy; %2<br>Simon J. Saunders</p>")
-            .arg(QStringLiteral(VERSION_NUMBER), QStringLiteral(COPYRIGHT_YEAR));
+    return tr("<p>QMandelbrot Version %1<br>Copyright &copy; %2<br>Simon J. "
+              "Saunders</p>")
+        .arg(QStringLiteral(VERSION_NUMBER), QStringLiteral(COPYRIGHT_YEAR));
 }
 
 void MandelbrotWidget::readSettings() {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
+    QSettings settings(QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
+    const QByteArray geometry =
+        settings.value("geometry", QByteArray()).toByteArray();
     if (!geometry.isEmpty())
         restoreGeometry(geometry);
     else
@@ -131,28 +138,22 @@ void MandelbrotWidget::readSettings() {
 }
 
 void MandelbrotWidget::writeSettings() {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings settings(QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
 }
 
-void MandelbrotWidget::closeEvent(QCloseEvent* /*event*/) {
-    writeSettings();
-}
+void MandelbrotWidget::closeEvent(QCloseEvent* /*event*/) { writeSettings(); }
 
-void MandelbrotWidget::redraw() {
-    canvas_->redraw();
-}
+void MandelbrotWidget::redraw() { canvas_->redraw(); }
 
-void MandelbrotWidget::revert() {
-    canvas_->revert();
-}
+void MandelbrotWidget::revert() { canvas_->revert(); }
 
-void MandelbrotWidget::quit() {
-    QCoreApplication::quit();
-}
+void MandelbrotWidget::quit() { QCoreApplication::quit(); }
 
 void MandelbrotWidget::save() {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "",
+                                                    tr("PNG Files (*.png)"));
     if (fileName.isEmpty())
         return;
     if (!canvas_->save(fileName))
@@ -160,21 +161,17 @@ void MandelbrotWidget::save() {
 }
 
 void MandelbrotWidget::setTime(int mseconds) {
-    setNumber(timeField_, mseconds/1000.0, 'f', 3);
+    setNumber(timeField_, mseconds / 1000.0, 'f', 3);
 }
 
-void MandelbrotWidget::setIterations(int n) {
-    setNumber(iterationsField_, n);
-}
+void MandelbrotWidget::setIterations(int n) { setNumber(iterationsField_, n); }
 
 void MandelbrotWidget::iterationsEdited(const QString& text) {
     if (iterationsField_->hasAcceptableInput())
         canvas_->setIterations(text.toInt());
 }
 
-void MandelbrotWidget::iterationsChanged() {
-    canvas_->redraw();
-}
+void MandelbrotWidget::iterationsChanged() { canvas_->redraw(); }
 
 void MandelbrotWidget::setValues(double scale, const QRectF& rect) {
     setNumber(scaleField_, scale);

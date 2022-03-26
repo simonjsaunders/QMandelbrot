@@ -20,15 +20,15 @@
 #ifndef MANDELBROTCANVAS_H
 #define MANDELBROTCANVAS_H
 
-#include <QWidget>
 #include <QThread>
+#include <QWidget>
 #include <memory>
 #include <stack>
 
 class MandelbrotCanvas : public QWidget {
     Q_OBJECT
 public:
-    explicit MandelbrotCanvas(QWidget *parent = nullptr);
+    explicit MandelbrotCanvas(QWidget* parent = nullptr);
     ~MandelbrotCanvas();
     void setIterations(int);
     int getIterations() const;
@@ -41,11 +41,11 @@ signals:
     void startDrawing(int, int, int, int, double, const QRectF&);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
     void createPixmap(int, int);
